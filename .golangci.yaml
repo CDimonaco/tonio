@@ -1,0 +1,52 @@
+linters-settings:
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/trento-project/contracts
+
+linters:
+  enable:
+    - deadcode
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unused
+    - varcheck
+    # - asasalint
+    - containedctx
+    # - cyclop
+    - depguard
+    - dogsled
+    - dupl
+    - durationcheck
+    - errchkjson
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - forbidigo
+    - forcetypeassert
+    - gochecknoglobals
+    # - gocognit
+    - goconst
+    - gocritic
+    - gofmt
+    - gomoddirectives
+    - gomodguard
+    - gosec
+    - ifshort
+    - importas
+    - lll
+    - misspell
+    - nilerr
+    - nilnil
+    - nonamedreturns
+    - nosnakecase
+    - prealloc
+    - predeclared
+    - revive
+    - unconvert
+    - unparam
+    - wastedassign
