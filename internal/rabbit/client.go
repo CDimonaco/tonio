@@ -4,15 +4,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/CDimonaco/tonio/internal/consumer"
 	"github.com/pkg/errors"
 	rabbitmq "github.com/wagslane/go-rabbitmq"
 	"go.uber.org/zap"
 )
-
-type TonioMessage struct {
-	Body        []byte
-	ContentType string
-}
 
 type Client struct {
 	url         string
@@ -22,7 +18,7 @@ type Client struct {
 	exchange    string
 	routingKeys []string
 	queue       string
-	outc        chan TonioMessage
+	outc        chan consumer.TonioMessage
 }
 
 func NewClient(
@@ -40,7 +36,7 @@ func NewClient(
 
 	l.Debugw("initializing client", "url", url)
 
-	consumer, err := rabbitmq.NewConsumer(
+	c, err := rabbitmq.NewConsumer(
 		url,
 		rabbitmq.Config{},
 		rabbitmq.WithConsumerOptionsLogger(zl),
@@ -50,7 +46,7 @@ func NewClient(
 		return nil, errors.Wrap(err, "error during rabbitmq consumer init")
 	}
 
-	publisher, err := rabbitmq.NewPublisher(
+	p, err := rabbitmq.NewPublisher(
 		url,
 		rabbitmq.Config{},
 		rabbitmq.WithPublisherOptionsLogger(zl),
@@ -63,12 +59,12 @@ func NewClient(
 	return &Client{
 		url:         url,
 		logger:      l,
-		consumer:    consumer,
-		pubblisher:  *publisher,
+		consumer:    c,
+		pubblisher:  *p,
 		queue:       fmt.Sprintf("tonio.test_queue.%s", strings.Join(routingKeys, ".")),
 		exchange:    exchange,
 		routingKeys: routingKeys,
-		outc:        make(chan TonioMessage),
+		outc:        make(chan consumer.TonioMessage),
 	}, nil
 }
 
@@ -87,12 +83,12 @@ func (c *Client) Close() error {
 	return nil
 }
 
-func (c *Client) Consume() (chan TonioMessage, error) {
+func (c *Client) Consume() (chan consumer.TonioMessage, error) {
 	err := c.consumer.StartConsuming(
 		func(d rabbitmq.Delivery) rabbitmq.Action {
 			c.logger.Debugf("consumed: %v", string(d.Body))
 
-			c.outc <- TonioMessage{
+			c.outc <- consumer.TonioMessage{
 				Body:        d.Body,
 				ContentType: d.ContentType,
 			}
