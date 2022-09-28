@@ -1,4 +1,4 @@
-package consumer
+package core
 
 type TonioMessage struct {
 	Body        []byte

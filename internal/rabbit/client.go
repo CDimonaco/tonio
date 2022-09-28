@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/CDimonaco/tonio/internal/consumer"
+	"github.com/CDimonaco/tonio/internal/core"
 	"github.com/pkg/errors"
 	rabbitmq "github.com/wagslane/go-rabbitmq"
 	"go.uber.org/zap"
@@ -18,7 +18,7 @@ type Client struct {
 	exchange    string
 	routingKeys []string
 	queue       string
-	outc        chan consumer.TonioMessage
+	outc        chan core.TonioMessage
 }
 
 func NewClient(
@@ -64,7 +64,7 @@ func NewClient(
 		queue:       fmt.Sprintf("tonio.test_queue.%s", strings.Join(routingKeys, ".")),
 		exchange:    exchange,
 		routingKeys: routingKeys,
-		outc:        make(chan consumer.TonioMessage),
+		outc:        make(chan core.TonioMessage),
 	}, nil
 }
 
@@ -83,12 +83,12 @@ func (c *Client) Close() error {
 	return nil
 }
 
-func (c *Client) Consume() (chan consumer.TonioMessage, error) {
+func (c *Client) Consume() (chan core.TonioMessage, error) {
 	err := c.consumer.StartConsuming(
 		func(d rabbitmq.Delivery) rabbitmq.Action {
 			c.logger.Debugf("consumed: %v", string(d.Body))
 
-			c.outc <- consumer.TonioMessage{
+			c.outc <- core.TonioMessage{
 				Body:        d.Body,
 				ContentType: d.ContentType,
 			}

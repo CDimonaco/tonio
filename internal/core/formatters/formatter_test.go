@@ -1,14 +1,14 @@
-package consumer_test
+package formatters_test
 
 import (
 	"testing"
 
-	"github.com/CDimonaco/tonio/internal/consumer"
+	"github.com/CDimonaco/tonio/internal/core/formatters"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestJSONFormatterOutput(t *testing.T) {
-	assert.NoError(t, consumer.JSONFormatter(consumer.FormatterInput{
+	assert.NoError(t, formatters.JSONFormatter(formatters.Input{
 		Message: []byte(`
 		{
 			"id": 192,

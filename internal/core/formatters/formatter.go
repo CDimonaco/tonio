@@ -1,4 +1,4 @@
-package consumer
+package formatters
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/jedib0t/go-pretty/text"
 )
 
-type FormatterInput struct {
+type Input struct {
 	Message     []byte
 	ContentType string
 	Exchange    string
@@ -17,7 +17,7 @@ type FormatterInput struct {
 	RoutingKeys []string
 }
 
-func JSONFormatter(input FormatterInput) error {
+func JSONFormatter(input Input) error {
 	os.Stdout.WriteString("\n")
 	os.Stdout.WriteString(fmt.Sprintf(
 		"%s: %s \n",
