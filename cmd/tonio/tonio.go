@@ -1,3 +1,4 @@
+// nolint:gochecknoglobals
 package tonio
 
 import (
@@ -5,14 +6,14 @@ import (
 )
 
 var (
-	host        string   //nolint
-	username    string   //nolint
-	password    string   //nolint
-	exchange    string   //nolint
-	routingKeys []string //nolint
+	host        string
+	username    string
+	password    string
+	exchange    string
+	routingKeys []string
 )
 
-var TonioCmd = &cobra.Command{ //nolint
+var TonioCmd = &cobra.Command{
 	Use:     "tonio",
 	Short:   "RabbitMq command line utility for message handling",
 	Version: "0.1.0",
