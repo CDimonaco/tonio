@@ -11,14 +11,15 @@ import (
 )
 
 type Client struct {
-	url         string
-	logger      *zap.SugaredLogger
-	consumer    rabbitmq.Consumer
-	pubblisher  rabbitmq.Publisher
-	exchange    string
-	routingKeys []string
-	queue       string
-	outc        chan core.TonioMessage
+	url          string
+	logger       *zap.SugaredLogger
+	consumer     rabbitmq.Consumer
+	pubblisher   rabbitmq.Publisher
+	exchange     string
+	routingKeys  []string
+	queue        string
+	exchangeKind string
+	outc         chan core.TonioMessage
 }
 
 func NewClient(
@@ -26,6 +27,7 @@ func NewClient(
 	username string,
 	password string,
 	exchange string,
+	exchangeKind string,
 	routingKeys []string,
 	logger *zap.SugaredLogger,
 ) (*Client, error) {
@@ -57,14 +59,15 @@ func NewClient(
 	}
 
 	return &Client{
-		url:         url,
-		logger:      l,
-		consumer:    c,
-		pubblisher:  *p,
-		queue:       fmt.Sprintf("tonio.test_queue.%s", strings.Join(routingKeys, ".")),
-		exchange:    exchange,
-		routingKeys: routingKeys,
-		outc:        make(chan core.TonioMessage),
+		url:          url,
+		logger:       l,
+		consumer:     c,
+		exchangeKind: exchangeKind,
+		pubblisher:   *p,
+		queue:        fmt.Sprintf("tonio.test_queue.%s", strings.Join(routingKeys, ".")),
+		exchange:     exchange,
+		routingKeys:  routingKeys,
+		outc:         make(chan core.TonioMessage),
 	}, nil
 }
 
@@ -98,6 +101,7 @@ func (c *Client) Consume() (chan core.TonioMessage, error) {
 		c.queue,
 		c.routingKeys,
 		rabbitmq.WithConsumeOptionsBindingExchangeName(c.exchange),
+		rabbitmq.WithConsumeOptionsBindingExchangeKind(c.exchangeKind),
 		rabbitmq.WithConsumeOptionsQueueAutoDelete,
 	)
 	if err != nil {
