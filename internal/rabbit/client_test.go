@@ -54,6 +54,7 @@ func (s *RabbitClientSuite) TestClientConsuming() {
 		"tonio",
 		exchange,
 		"direct",
+		false,
 		keys,
 		testLogger,
 	)

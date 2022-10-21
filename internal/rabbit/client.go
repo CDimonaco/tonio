@@ -11,15 +11,16 @@ import (
 )
 
 type Client struct {
-	url          string
-	logger       *zap.SugaredLogger
-	consumer     rabbitmq.Consumer
-	pubblisher   rabbitmq.Publisher
-	exchange     string
-	routingKeys  []string
-	queue        string
-	exchangeKind string
-	outc         chan core.TonioMessage
+	url             string
+	logger          *zap.SugaredLogger
+	consumer        rabbitmq.Consumer
+	pubblisher      rabbitmq.Publisher
+	exchange        string
+	routingKeys     []string
+	queue           string
+	exchangeKind    string
+	exchangeDurable bool
+	outc            chan core.TonioMessage
 }
 
 func NewClient(
@@ -28,6 +29,7 @@ func NewClient(
 	password string,
 	exchange string,
 	exchangeKind string,
+	exchangeDurable bool,
 	routingKeys []string,
 	logger *zap.SugaredLogger,
 ) (*Client, error) {
@@ -59,15 +61,16 @@ func NewClient(
 	}
 
 	return &Client{
-		url:          url,
-		logger:       l,
-		consumer:     c,
-		exchangeKind: exchangeKind,
-		pubblisher:   *p,
-		queue:        fmt.Sprintf("tonio.test_queue.%s", strings.Join(routingKeys, ".")),
-		exchange:     exchange,
-		routingKeys:  routingKeys,
-		outc:         make(chan core.TonioMessage),
+		url:             url,
+		logger:          l,
+		consumer:        c,
+		exchangeKind:    exchangeKind,
+		exchangeDurable: exchangeDurable,
+		pubblisher:      *p,
+		queue:           fmt.Sprintf("tonio.test_queue.%s", strings.Join(routingKeys, ".")),
+		exchange:        exchange,
+		routingKeys:     routingKeys,
+		outc:            make(chan core.TonioMessage),
 	}, nil
 }
 
@@ -87,6 +90,16 @@ func (c *Client) Close() error {
 }
 
 func (c *Client) Consume() (chan core.TonioMessage, error) {
+	consumeOpts := []func(*rabbitmq.ConsumeOptions){
+		rabbitmq.WithConsumeOptionsBindingExchangeName(c.exchange),
+		rabbitmq.WithConsumeOptionsBindingExchangeKind(c.exchangeKind),
+		rabbitmq.WithConsumeOptionsQueueAutoDelete,
+	}
+
+	if c.exchangeDurable {
+		consumeOpts = append(consumeOpts, rabbitmq.WithConsumeOptionsBindingExchangeDurable)
+	}
+
 	err := c.consumer.StartConsuming(
 		func(d rabbitmq.Delivery) rabbitmq.Action {
 			c.logger.Debugf("consumed: %v", string(d.Body))
@@ -94,15 +107,14 @@ func (c *Client) Consume() (chan core.TonioMessage, error) {
 			c.outc <- core.TonioMessage{
 				Body:        d.Body,
 				ContentType: d.ContentType,
+				Queue:       c.queue,
 			}
 			// rabbitmq.Ack, rabbitmq.NackDiscard, rabbitmq.NackRequeue
 			return rabbitmq.Ack
 		},
 		c.queue,
 		c.routingKeys,
-		rabbitmq.WithConsumeOptionsBindingExchangeName(c.exchange),
-		rabbitmq.WithConsumeOptionsBindingExchangeKind(c.exchangeKind),
-		rabbitmq.WithConsumeOptionsQueueAutoDelete,
+		consumeOpts...,
 	)
 	if err != nil {
 		return nil, err
