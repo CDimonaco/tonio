@@ -7,6 +7,7 @@ import (
 
 	"github.com/CDimonaco/tonio/internal/core"
 	"github.com/CDimonaco/tonio/internal/proto"
+	"go.uber.org/zap"
 )
 
 type Formatter = func(message core.Message) (*bytes.Buffer, error)
@@ -19,18 +20,23 @@ func isJSON(data []byte) bool {
 	return false
 }
 
-func FormatMessage(message core.Message, protoRegistry proto.Registry, protoType string) (*bytes.Buffer, error) {
-	if protoType != "" {
-		formatter := ProtoMessage(protoRegistry, protoType)
+func FormatMessage(
+	message core.Message,
+	protoRegistry *proto.Registry,
+	protoType string,
+	logger *zap.SugaredLogger,
+) (*bytes.Buffer, error) {
+	if protoType != "" && protoRegistry != nil {
+		formatter := ProtoMessage(*protoRegistry, protoType)
 		output, err := formatter(message)
 		if err != nil {
-			if errors.Is(err, ErrNoProtoMessageForDecoding) {
-				// fallback to raw formatter
-				return Raw(message)
+			if !errors.Is(err, ErrNoProtoMessageForDecoding) {
+				// fallback to others formatter
+				logger.Debugw("could not decode the message as protobuf, fallback to other formatters", "error", err)
 			}
-			return nil, err
+		} else {
+			return output, nil
 		}
-		return output, nil
 	}
 
 	if isJSON(message.Body) {

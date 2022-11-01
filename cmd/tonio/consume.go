@@ -16,9 +16,10 @@ import (
 )
 
 var consumeCmd = &cobra.Command{ //nolint
-	Use:   "consume [routing keys]",
-	Short: "Consume messages from an exchange",
-	Args:  cobra.MinimumNArgs(1),
+	Use:     "consume [routing keys]",
+	Short:   "Consume messages from an exchange",
+	Args:    cobra.MinimumNArgs(1),
+	PreRunE: initializeProtoRegistry,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger := newLogger(debug)
 		client, err := rabbit.NewClient(
@@ -90,7 +91,13 @@ var consumeCmd = &cobra.Command{ //nolint
 
 						output.WriteString("\n\n")
 
-						formattedMessage, err := formatters.JSONMessage(m)
+						formattedMessage, err := formatters.FormatMessage(
+							m,
+							protoRegistry,
+							protoMessageType,
+							logger,
+						)
+
 						if err != nil {
 							return err
 						}
