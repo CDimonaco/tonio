@@ -20,7 +20,7 @@ type Client struct {
 	queue           string
 	exchangeKind    string
 	exchangeDurable bool
-	outc            chan core.TonioMessage
+	outc            chan core.Message
 }
 
 func NewClient(
@@ -70,7 +70,7 @@ func NewClient(
 		queue:           fmt.Sprintf("tonio.test_queue.%s", strings.Join(routingKeys, ".")),
 		exchange:        exchange,
 		routingKeys:     routingKeys,
-		outc:            make(chan core.TonioMessage),
+		outc:            make(chan core.Message),
 	}, nil
 }
 
@@ -89,7 +89,7 @@ func (c *Client) Close() error {
 	return nil
 }
 
-func (c *Client) Consume() (chan core.TonioMessage, error) {
+func (c *Client) Consume() (chan core.Message, error) {
 	consumeOpts := []func(*rabbitmq.ConsumeOptions){
 		rabbitmq.WithConsumeOptionsBindingExchangeName(c.exchange),
 		rabbitmq.WithConsumeOptionsBindingExchangeKind(c.exchangeKind),
@@ -104,7 +104,7 @@ func (c *Client) Consume() (chan core.TonioMessage, error) {
 		func(d rabbitmq.Delivery) rabbitmq.Action {
 			c.logger.Debugf("consumed: %v", string(d.Body))
 
-			c.outc <- core.TonioMessage{
+			c.outc <- core.Message{
 				Body:        d.Body,
 				ContentType: d.ContentType,
 				Queue:       c.queue,

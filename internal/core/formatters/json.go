@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/CDimonaco/tonio/internal/core"
 	"github.com/hokaccha/go-prettyjson"
 	"github.com/jedib0t/go-pretty/text"
 )
 
-func JSONMessage(messagePayload Input) (*bytes.Buffer, error) {
+func JSONMessage(messagePayload core.Message) (*bytes.Buffer, error) {
 	var output bytes.Buffer
 
 	output.WriteString("\n")
@@ -40,7 +41,7 @@ func JSONMessage(messagePayload Input) (*bytes.Buffer, error) {
 	output.WriteString("\n\n")
 
 	formatter := prettyjson.NewFormatter()
-	prettifiedJSON, err := formatter.Format(messagePayload.Message)
+	prettifiedJSON, err := formatter.Format(messagePayload.Body)
 
 	if err != nil {
 		return nil, err

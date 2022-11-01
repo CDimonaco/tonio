@@ -70,15 +70,7 @@ var consumeCmd = &cobra.Command{ //nolint
 
 		group.Go(func() error {
 			for m := range msgc {
-				formatterInput := formatters.Input{
-					Message:     m.Body,
-					ContentType: m.ContentType,
-					Exchange:    exchange,
-					Queue:       m.Queue,
-					RoutingKeys: args,
-				}
-
-				out, err := formatters.JSONMessage(formatterInput)
+				out, err := formatters.JSONMessage(m)
 				if err != nil {
 					return err
 				}

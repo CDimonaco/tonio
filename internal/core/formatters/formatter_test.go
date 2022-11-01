@@ -4,13 +4,14 @@ package formatters_test
 import (
 	"testing"
 
+	"github.com/CDimonaco/tonio/internal/core"
 	"github.com/CDimonaco/tonio/internal/core/formatters"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestJSONFormatterOutput(t *testing.T) {
-	output, err := formatters.JSONMessage(formatters.Input{
-		Message: []byte(`
+	output, err := formatters.JSONMessage(core.Message{
+		Body: []byte(`
 		{
 			"id": 192,
 			"name": "Punk IPA 2007 - 2010",

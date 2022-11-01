@@ -1,7 +1,9 @@
 package core
 
-type TonioMessage struct {
+type Message struct {
 	Body        []byte
 	ContentType string
+	Exchange    string
 	Queue       string
+	RoutingKeys []string
 }
