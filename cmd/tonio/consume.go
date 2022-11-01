@@ -1,11 +1,11 @@
 package tonio
 
 import (
+	"bytes"
 	"context"
 	"os"
-	"os/signal"
-	"syscall"
 
+	"github.com/CDimonaco/tonio/internal/core"
 	"github.com/CDimonaco/tonio/internal/core/formatters"
 	"github.com/CDimonaco/tonio/internal/rabbit"
 	"github.com/spf13/cobra"
@@ -37,8 +37,8 @@ var consumeCmd = &cobra.Command{ //nolint
 			return err
 		}
 
-		ctx, done := context.WithCancel(context.Background())
-		group, groupCtx := errgroup.WithContext(ctx)
+		ctx, _ := context.WithCancel(context.Background())
+		group, _ := errgroup.WithContext(ctx)
 
 		defer close(msgc)
 		defer func() {
@@ -48,34 +48,45 @@ var consumeCmd = &cobra.Command{ //nolint
 			}
 		}()
 
-		group.Go(func() error {
-			sigc := make(chan os.Signal, 1)
-			signal.Notify(sigc, syscall.SIGTERM, syscall.SIGINT)
+		// group.Go(func() error {
+		// 	sigc := make(chan os.Signal, 1)
+		// 	signal.Notify(sigc, syscall.SIGTERM, syscall.SIGINT)
 
-			select {
-			case s := <-sigc:
-				{
-					logger.Debugw("received signal, shutdown", "sig", s)
-					done()
-				}
-			case <-groupCtx.Done():
-				{
-					os.Stdout.WriteString("bye!")
-					return groupCtx.Err()
-				}
-			}
+		// 	select {
+		// 	case s := <-sigc:
+		// 		{
+		// 			logger.Debugw("received signal, shutdown", "sig", s)
+		// 			done()
+		// 		}
+		// 	case <-groupCtx.Done():
+		// 		{
+		// 			os.Stdout.WriteString("bye!")
+		// 			return groupCtx.Err()
+		// 		}
+		// 	}
 
-			return nil
-		})
+		// 	return nil
+		// })
 
 		group.Go(func() error {
 			for m := range msgc {
-				out, err := formatters.JSONMessage(m)
+				var output bytes.Buffer
+
+				output.WriteString("\n")
+
+				meta := core.ExtractMetadata(m)
+
+				_, _ = meta.WriteTo(&output)
+
+				output.WriteString("\n\n")
+
+				formattedMessage, err := formatters.JSONMessage(m)
 				if err != nil {
 					return err
 				}
+				_, _ = formattedMessage.WriteTo(&output)
 
-				os.Stdout.Write(out.Bytes())
+				_, _ = output.WriteTo(os.Stdout)
 			}
 
 			return nil

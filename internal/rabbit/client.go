@@ -108,6 +108,8 @@ func (c *Client) Consume() (chan core.Message, error) {
 				Body:        d.Body,
 				ContentType: d.ContentType,
 				Queue:       c.queue,
+				Exchange:    c.exchange,
+				RoutingKeys: c.routingKeys,
 			}
 			// rabbitmq.Ack, rabbitmq.NackDiscard, rabbitmq.NackRequeue
 			return rabbitmq.Ack
