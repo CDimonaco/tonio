@@ -1,0 +1,10 @@
+
+syntax = "proto3";
+
+package Tonio.Test;
+option go_package = "/;prototest";
+
+
+message TestMessage {
+  string message = 1;
+}
