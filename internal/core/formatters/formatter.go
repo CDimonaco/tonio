@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type Formatter = func(message core.Message) (*bytes.Buffer, error)
+type Formatter = func(message []byte) (*bytes.Buffer, error)
 
 func isJSON(data []byte) bool {
 	var i interface{}
@@ -26,22 +26,26 @@ func FormatMessage(
 	protoType string,
 	logger *zap.SugaredLogger,
 ) (*bytes.Buffer, error) {
+	messageBytes := message.Body
+
 	if protoType != "" && protoRegistry != nil {
 		formatter := ProtoMessage(*protoRegistry, protoType)
-		output, err := formatter(message)
+		mb, err := formatter(messageBytes)
 		if err != nil {
 			if !errors.Is(err, ErrNoProtoMessageForDecoding) {
 				// fallback to others formatter
 				logger.Debugw("could not decode the message as protobuf, fallback to other formatters", "error", err)
+			} else {
+				return nil, err
 			}
 		} else {
-			return output, nil
+			messageBytes = mb.Bytes()
 		}
 	}
 
-	if isJSON(message.Body) {
-		return JSONMessage(message)
+	if isJSON(messageBytes) {
+		return JSONMessage(messageBytes)
 	}
 
-	return Raw(message)
+	return Raw(messageBytes)
 }
