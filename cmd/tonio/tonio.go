@@ -9,9 +9,7 @@ import (
 )
 
 var (
-	host             string
-	username         string
-	password         string
+	connection       string
 	exchange         string
 	exchangeType     string
 	debug            bool
@@ -59,21 +57,15 @@ var TonioCmd = &cobra.Command{
 }
 
 func init() {
-	TonioCmd.PersistentFlags().StringVar(&host, "host", "", "RabbitMq host")
-	TonioCmd.PersistentFlags().StringVarP(&username, "username", "u", "", "RabbitMq username")
-	TonioCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "RabbitMq password")
+	TonioCmd.PersistentFlags().StringVarP(&connection, "connection", "c", "", "RabbitMq connection")
 	TonioCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "Debug output")
 	TonioCmd.PersistentFlags().StringVarP(&exchange, "exchange", "e", "", "RabbitMq exchange")
 	TonioCmd.PersistentFlags().StringVarP(&exchangeType, "type", "t", "direct", "RabbitMq exchange type")
 	TonioCmd.PersistentFlags().StringVar(&protoMessageType, "proto-type", "", "Full qualified name of protobuf message")
 	TonioCmd.PersistentFlags().StringVar(&protoFilesPath, "proto-files-path", "", "Path to proto files")
-
 	TonioCmd.PersistentFlags().BoolVar(&durable, "durable", true, "Durable exchange")
 
-	_ = TonioCmd.MarkPersistentFlagRequired("host")
-	_ = TonioCmd.MarkPersistentFlagRequired("username")
-	_ = TonioCmd.MarkPersistentFlagRequired("password")
-	_ = TonioCmd.MarkPersistentFlagRequired("exchange")
+	_ = TonioCmd.MarkPersistentFlagRequired("connection")
 
 	TonioCmd.AddCommand(consumeCmd)
 }

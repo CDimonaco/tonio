@@ -49,9 +49,7 @@ func (s *RabbitClientSuite) TestClientConsuming() {
 	keys := []string{"messages"}
 
 	client, err := rabbit.NewClient(
-		"localhost",
-		"tonio",
-		"tonio",
+		amqpConnection,
 		exchange,
 		"direct",
 		false,

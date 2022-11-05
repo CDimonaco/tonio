@@ -23,9 +23,7 @@ var consumeCmd = &cobra.Command{ //nolint
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger := newLogger(debug)
 		client, err := rabbit.NewClient(
-			host,
-			username,
-			password,
+			connection,
 			exchange,
 			exchangeType,
 			durable,

@@ -11,7 +11,7 @@ import (
 )
 
 type Client struct {
-	url             string
+	connection      string
 	logger          *zap.SugaredLogger
 	consumer        rabbitmq.Consumer
 	pubblisher      rabbitmq.Publisher
@@ -24,9 +24,7 @@ type Client struct {
 }
 
 func NewClient(
-	host string,
-	username string,
-	password string,
+	connection string,
 	exchange string,
 	exchangeKind string,
 	exchangeDurable bool,
@@ -36,12 +34,10 @@ func NewClient(
 	l := logger.With("component", "rabbitClient")
 	zl := ZapLogger{l}
 
-	url := fmt.Sprintf("amqp://%s:%s@%s", username, password, host)
-
-	l.Debugw("initializing client", "url", url)
+	l.Debugw("initializing client", "url", connection)
 
 	c, err := rabbitmq.NewConsumer(
-		url,
+		connection,
 		rabbitmq.Config{},
 		rabbitmq.WithConsumerOptionsLogger(zl),
 	)
@@ -51,7 +47,7 @@ func NewClient(
 	}
 
 	p, err := rabbitmq.NewPublisher(
-		url,
+		connection,
 		rabbitmq.Config{},
 		rabbitmq.WithPublisherOptionsLogger(zl),
 	)
@@ -61,7 +57,7 @@ func NewClient(
 	}
 
 	return &Client{
-		url:             url,
+		connection:      connection,
 		logger:          l,
 		consumer:        c,
 		exchangeKind:    exchangeKind,
