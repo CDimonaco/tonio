@@ -3,8 +3,11 @@ package rabbit_test
 import (
 	"sync"
 	"testing"
+	"time"
 
+	"github.com/CDimonaco/tonio/internal/core"
 	"github.com/CDimonaco/tonio/internal/rabbit"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/wagslane/go-rabbitmq"
 	"go.uber.org/zap"
@@ -42,6 +45,63 @@ func (s *RabbitClientSuite) SetupSuite() {
 
 	s.publisher = *pub
 }
+
+func (s *RabbitClientSuite) TestClientProducing() {
+	wg := new(sync.WaitGroup)
+
+	exchange := "test_ex"
+	keys := []string{"messages_sent"}
+
+	client, err := rabbit.NewClient(
+		amqpConnection,
+		exchange,
+		"direct",
+		false,
+		keys,
+		testLogger,
+	)
+	s.NoError(err)
+
+	out, err := client.Consume()
+	s.NoError(err)
+
+	tt, err := time.Parse(time.RFC3339, "2022-11-05T17:05:57.993Z")
+	assert.NoError(s.T(), err)
+
+	message := core.Message{
+		Timestamp: tt,
+		Headers: map[string]interface{}{
+			"test": "test",
+		},
+		Body:        []byte("hello proto?"),
+		ContentType: "text",
+		Exchange:    exchange,
+		RoutingKeys: keys,
+	}
+
+	err = client.Produce(message)
+	assert.NoError(s.T(), err)
+
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		result := <-out
+		s.EqualValues("hello proto?", string(result.Body))
+		s.EqualValues("text", result.ContentType)
+		s.EqualValues(map[string]interface{}{
+			"test": "test",
+		}, result.Headers)
+		s.EqualValues(tt.Format(time.RFC3339), result.Timestamp.UTC().Format(time.RFC3339))
+	}()
+
+	wg.Wait()
+
+	err = client.Close()
+	s.NoError(err)
+
+}
+
 func (s *RabbitClientSuite) TestClientConsuming() {
 	wg := new(sync.WaitGroup)
 

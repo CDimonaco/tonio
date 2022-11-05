@@ -85,6 +85,29 @@ func (c *Client) Close() error {
 	return nil
 }
 
+func (c *Client) Produce(message core.Message) error {
+	publishOpts := []func(*rabbitmq.PublishOptions){
+		rabbitmq.WithPublishOptionsExchange(message.Exchange),
+		rabbitmq.WithPublishOptionsAppID("tonio"),
+		rabbitmq.WithPublishOptionsTimestamp(message.Timestamp),
+	}
+
+	if len(message.Headers) != 0 {
+		publishOpts = append(publishOpts, rabbitmq.WithPublishOptionsHeaders(message.Headers))
+	}
+
+	if message.ContentType != "" {
+		publishOpts = append(publishOpts, rabbitmq.WithPublishOptionsContentType(message.ContentType))
+	}
+
+	err := c.pubblisher.Publish(message.Body, message.RoutingKeys, publishOpts...)
+	if err != nil {
+		return errors.Wrapf(err, "could not send message to: %s", strings.Join(message.RoutingKeys, ","))
+	}
+
+	return nil
+}
+
 func (c *Client) Consume() (chan core.Message, error) {
 	consumeOpts := []func(*rabbitmq.ConsumeOptions){
 		rabbitmq.WithConsumeOptionsBindingExchangeName(c.exchange),
