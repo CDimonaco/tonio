@@ -44,5 +44,20 @@ func ExtractMetadata(message Message) bytes.Buffer {
 		text.FgHiWhite.Sprint(strings.Join(message.RoutingKeys, ", ")),
 	))
 
+	if len(message.Headers) != 0 {
+		output.WriteString(fmt.Sprintf(
+			"%s:\n",
+			text.FgHiGreen.Sprint("Headers"),
+		))
+
+		for k, v := range message.Headers {
+			output.WriteString(fmt.Sprintf(
+				"\t %s: %s \n",
+				text.FgHiGreen.Sprint(k),
+				text.FgHiWhite.Sprint(v),
+			))
+		}
+	}
+
 	return output
 }
