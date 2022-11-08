@@ -15,6 +15,13 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+func init() {
+	consumeCmd.PersistentFlags().StringVarP(&exchangeType, "type", "t", "direct", "RabbitMq exchange type")
+	consumeCmd.PersistentFlags().BoolVar(&durable, "durable", true, "Durable exchange")
+	consumeCmd.PersistentFlags().StringVar(&protoMessageType, "proto-type", "", "Full qualified name of protobuf message")
+	consumeCmd.PersistentFlags().StringVar(&protoFilesPath, "proto-files-path", "", "Path to proto files")
+}
+
 var consumeCmd = &cobra.Command{ //nolint
 	Use:     "consume [routing keys]",
 	Short:   "Consume messages from an exchange",

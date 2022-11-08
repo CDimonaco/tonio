@@ -60,10 +60,6 @@ func init() {
 	TonioCmd.PersistentFlags().StringVarP(&connection, "connection", "c", "", "RabbitMq connection")
 	TonioCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "Debug output")
 	TonioCmd.PersistentFlags().StringVarP(&exchange, "exchange", "e", "", "RabbitMq exchange")
-	TonioCmd.PersistentFlags().StringVarP(&exchangeType, "type", "t", "direct", "RabbitMq exchange type")
-	TonioCmd.PersistentFlags().StringVar(&protoMessageType, "proto-type", "", "Full qualified name of protobuf message")
-	TonioCmd.PersistentFlags().StringVar(&protoFilesPath, "proto-files-path", "", "Path to proto files")
-	TonioCmd.PersistentFlags().BoolVar(&durable, "durable", true, "Durable exchange")
 
 	_ = TonioCmd.MarkPersistentFlagRequired("connection")
 
