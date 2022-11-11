@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	consumeCmd.PersistentFlags().StringVarP(&exchangeType, "type", "t", "direct", "RabbitMq exchange type")
+	consumeCmd.PersistentFlags().StringVarP(&exchangeType, "type", "t", "direct", "RabbitMQ exchange type")
 	consumeCmd.PersistentFlags().BoolVar(&durable, "durable", true, "Durable exchange")
 	consumeCmd.PersistentFlags().StringVar(&protoMessageType, "proto-type", "", "Full qualified name of protobuf message")
 	consumeCmd.PersistentFlags().StringVar(&protoFilesPath, "proto-files-path", "", "Path to proto files")

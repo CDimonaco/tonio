@@ -52,14 +52,14 @@ func newLogger(debug bool) *zap.SugaredLogger {
 
 var TonioCmd = &cobra.Command{
 	Use:     "tonio",
-	Short:   "RabbitMq command line utility for message handling",
+	Short:   "RabbitMQ command line utility for message handling",
 	Version: "0.1.0",
 }
 
 func init() {
-	TonioCmd.PersistentFlags().StringVarP(&connection, "connection", "c", "", "RabbitMq connection")
+	TonioCmd.PersistentFlags().StringVarP(&connection, "connection", "c", "", "RabbitMQ connection")
 	TonioCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "Debug output")
-	TonioCmd.PersistentFlags().StringVarP(&exchange, "exchange", "e", "", "RabbitMq exchange")
+	TonioCmd.PersistentFlags().StringVarP(&exchange, "exchange", "e", "", "RabbitMQ exchange")
 
 	_ = TonioCmd.MarkPersistentFlagRequired("connection")
 
