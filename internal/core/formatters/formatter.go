@@ -2,7 +2,6 @@ package formatters
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 
 	"github.com/CDimonaco/tonio/internal/core"
@@ -11,14 +10,6 @@ import (
 )
 
 type Formatter = func(message []byte) (*bytes.Buffer, error)
-
-func isJSON(data []byte) bool {
-	var i interface{}
-	if err := json.Unmarshal(data, &i); err == nil {
-		return true
-	}
-	return false
-}
 
 func FormatMessage(
 	message core.Message,
@@ -43,7 +34,7 @@ func FormatMessage(
 		}
 	}
 
-	if isJSON(messageBytes) {
+	if core.IsJSON(messageBytes) {
 		return JSONMessage(messageBytes)
 	}
 

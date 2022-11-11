@@ -64,4 +64,5 @@ func init() {
 	_ = TonioCmd.MarkPersistentFlagRequired("connection")
 
 	TonioCmd.AddCommand(consumeCmd)
+	TonioCmd.AddCommand(produceCmd)
 }

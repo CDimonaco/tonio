@@ -1,6 +1,9 @@
 package core
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Message struct {
 	Timestamp   time.Time
@@ -10,4 +13,12 @@ type Message struct {
 	Exchange    string
 	Queue       string
 	RoutingKeys []string
+}
+
+func IsJSON(data []byte) bool {
+	var i interface{}
+	if err := json.Unmarshal(data, &i); err == nil {
+		return true
+	}
+	return false
 }
