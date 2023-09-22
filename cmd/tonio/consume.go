@@ -88,13 +88,12 @@ var consumeCmd = &cobra.Command{ //nolint
 					{
 						var output bytes.Buffer
 
-						output.WriteString("\n")
+						output.WriteString("\033[2J")
+						output.WriteString("\u001b[0;0H")
 
 						meta := core.ExtractMetadata(m)
 
 						_, _ = meta.WriteTo(&output)
-
-						output.WriteString("\n\n")
 
 						formattedMessage, err := formatters.FormatMessage(
 							m,
