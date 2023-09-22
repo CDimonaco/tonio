@@ -14,7 +14,7 @@ func init() {
 
 }
 
-var produceCmd = &cobra.Command{ //nolint
+var produceCmd = &cobra.Command{
 	Use:     "INPUT | produce [routing keys]",
 	Short:   "Produce message, use with command piping",
 	Args:    cobra.MinimumNArgs(1),

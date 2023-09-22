@@ -22,7 +22,7 @@ func init() {
 	consumeCmd.PersistentFlags().StringVar(&protoFilesPath, "proto-files-path", "", "Path to proto files")
 }
 
-var consumeCmd = &cobra.Command{ //nolint
+var consumeCmd = &cobra.Command{
 	Use:     "consume [routing keys]",
 	Short:   "Consume messages from an exchange",
 	Args:    cobra.MinimumNArgs(1),
