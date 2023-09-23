@@ -10,7 +10,9 @@ import (
 
 	"github.com/CDimonaco/tonio/internal/core"
 	"github.com/CDimonaco/tonio/internal/core/formatters"
+	"github.com/CDimonaco/tonio/internal/proto"
 	"github.com/CDimonaco/tonio/internal/rabbit"
+	"github.com/jhump/protoreflect/dynamic"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 )
@@ -20,6 +22,14 @@ func init() {
 	consumeCmd.PersistentFlags().BoolVar(&durable, "durable", true, "Durable exchange")
 	consumeCmd.PersistentFlags().StringVar(&protoMessageType, "proto-type", "", "Full qualified name of protobuf message")
 	consumeCmd.PersistentFlags().StringVar(&protoFilesPath, "proto-files-path", "", "Path to proto files")
+}
+
+func protoModeEnabled(protoRegistry *proto.Registry, protoType string) bool {
+	return protoType != "" && protoRegistry != nil
+}
+
+func protoForMessageType(registry *proto.Registry, protoMessageType string) *dynamic.Message {
+	return registry.MessageForType(protoMessageType)
 }
 
 var consumeCmd = &cobra.Command{
@@ -92,21 +102,51 @@ var consumeCmd = &cobra.Command{
 						output.WriteString("\u001b[0;0H")
 
 						meta := core.ExtractMetadata(m)
-
 						_, _ = meta.WriteTo(&output)
 
-						formattedMessage, err := formatters.FormatMessage(
-							m,
-							protoRegistry,
-							protoMessageType,
-							logger,
-						)
+						message := m.Body
 
-						if err != nil {
-							return err
+						if protoModeEnabled(protoRegistry, protoMessageType) {
+							protoMessageDescriptor := protoForMessageType(protoRegistry, protoMessageType)
+
+							if protoMessageDescriptor != nil {
+								mb, err := formatters.ProtoMessage(*protoRegistry, protoMessageType, message)
+								if err != nil {
+									logger.Errorw(
+										"could not decode proto message",
+										"proto_type",
+										protoMessageType,
+										"error",
+										err,
+									)
+									continue
+								}
+								message = mb
+							} else {
+								logger.Debugw(
+									"skipping proto decoding, message type not found in registry",
+									"proto_type",
+									protoMessageType,
+								)
+							}
 						}
-						_, _ = formattedMessage.WriteTo(&output)
 
+						if core.IsJSON(message) {
+							m, err := formatters.JSONMessage(message)
+							if err != nil {
+								logger.Errorw(
+									"could not decode json message",
+									"error",
+									err,
+								)
+
+								continue
+							}
+
+							message = m
+						}
+
+						_, _ = output.Write(message)
 						_, _ = output.WriteTo(os.Stdout)
 					}
 				}

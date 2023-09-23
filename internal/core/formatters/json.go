@@ -1,14 +1,10 @@
 package formatters
 
 import (
-	"bytes"
-
 	"github.com/hokaccha/go-prettyjson"
 )
 
-func JSONMessage(message []byte) (*bytes.Buffer, error) {
-	var output bytes.Buffer
-
+func JSONMessage(message []byte) ([]byte, error) {
 	formatter := prettyjson.NewFormatter()
 	prettifiedJSON, err := formatter.Format(message)
 
@@ -16,9 +12,5 @@ func JSONMessage(message []byte) (*bytes.Buffer, error) {
 		return nil, err
 	}
 
-	output.Write(prettifiedJSON)
-
-	output.WriteString("\n\n")
-
-	return &output, nil
+	return prettifiedJSON, nil
 }
