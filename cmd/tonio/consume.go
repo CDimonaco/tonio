@@ -110,7 +110,7 @@ var consumeCmd = &cobra.Command{
 							protoMessageDescriptor := protoForMessageType(protoRegistry, protoMessageType)
 
 							if protoMessageDescriptor != nil {
-								mb, err := formatters.ProtoMessage(*protoRegistry, protoMessageType, message)
+								mb, err := formatters.ProtoMessage(protoMessageDescriptor, message)
 								if err != nil {
 									logger.Errorw(
 										"could not decode proto message",
