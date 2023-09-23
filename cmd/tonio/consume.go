@@ -32,7 +32,7 @@ func protoForMessageType(registry *proto.Registry, protoMessageType string) *dyn
 	return registry.MessageForType(protoMessageType)
 }
 
-var consumeCmd = &cobra.Command{
+var consumeCmd = &cobra.Command{ //nolint
 	Use:     "consume [routing keys]",
 	Short:   "Consume messages from an exchange",
 	Args:    cobra.MinimumNArgs(1),

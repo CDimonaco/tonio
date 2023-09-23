@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var testLogger *zap.SugaredLogger
+var testLogger *zap.SugaredLogger //nolint
 
 func init() {
 	l, err := zap.NewDevelopment()

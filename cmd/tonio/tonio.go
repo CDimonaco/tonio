@@ -19,7 +19,7 @@ var (
 	protoRegistry    *proto.Registry
 )
 
-func initializeProtoRegistry(cmd *cobra.Command, args []string) error {
+func initializeProtoRegistry(_ *cobra.Command, _ []string) error {
 	if protoFilesPath != "" {
 		r, err := proto.NewRegistry(protoFilesPath, newLogger(debug))
 		if err != nil {

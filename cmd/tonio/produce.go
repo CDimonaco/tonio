@@ -10,7 +10,7 @@ var (
 func init() {
 	produceCmd.PersistentFlags().StringVar(&protoMessageType, "proto-type", "", "Full qualified name of protobuf message")
 	produceCmd.PersistentFlags().StringVar(&protoFilesPath, "proto-files-path", "", "Path to proto files")
-	produceCmd.Flags().StringArrayVar(&headers, "header", []string{}, "Header in format [KEY]:[VALUE]. Use multiple times to add more headers.")
+	produceCmd.Flags().StringArrayVar(&headers, "header", []string{}, "Header in format [KEY]:[VALUE]. Use multiple times to add more headers.") //nolint
 
 }
 
