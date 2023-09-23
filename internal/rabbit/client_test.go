@@ -7,7 +7,6 @@ import (
 
 	"github.com/CDimonaco/tonio/internal/core"
 	"github.com/CDimonaco/tonio/internal/rabbit"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/wagslane/go-rabbitmq"
 	"go.uber.org/zap"
@@ -66,7 +65,7 @@ func (s *RabbitClientSuite) TestClientProducing() {
 	s.NoError(err)
 
 	tt, err := time.Parse(time.RFC3339, "2022-11-05T17:05:57.993Z")
-	assert.NoError(s.T(), err)
+	s.NoError(err)
 
 	message := core.Message{
 		Timestamp: tt,
@@ -80,7 +79,7 @@ func (s *RabbitClientSuite) TestClientProducing() {
 	}
 
 	err = client.Produce(message)
-	assert.NoError(s.T(), err)
+	s.NoError(err)
 
 	wg.Add(1)
 
