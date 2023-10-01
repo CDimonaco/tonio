@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/desc/protoparse"
 	"github.com/jhump/protoreflect/dynamic"
@@ -61,4 +62,17 @@ func (d *Registry) MessageForType(protoType string) *dynamic.Message {
 		}
 	}
 	return nil
+}
+
+func (d *Registry) AnyResolver() jsonpb.AnyResolver {
+	ktr := dynamic.NewKnownTypeRegistryWithDefaults()
+
+	for _, descriptor := range d.descriptors {
+		pt := descriptor.AsProto()
+		ktr.AddKnownType(pt)
+	}
+
+	mf := dynamic.NewMessageFactoryWithKnownTypeRegistry(ktr)
+
+	return dynamic.AnyResolver(mf, d.descriptors...)
 }
